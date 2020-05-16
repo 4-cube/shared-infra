@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  http-api
+  
+  Sample SAM Template for shared API Gateway V2
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Target environment
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format:
+          !Join 
+            - ','
+            - - '{'
+              - '"requestId": "$context.requestId"'
+              - '"ip": "$context.identity.sourceIp"'
+              - '"routeKey": "$context.routeKey"'
+              - '"protocol": "$context.protocol"'
+              - '"method": "$context.httpMethod"'
+              - '"path": "$context.path"'
+              - '"requestTime": "$context.requestTime"'
+              - '"integrationLatency": "$context.integrationLatency"'
+              - '"integrationStatus": "$context.integrationStatus"'
+              - '"integrationErrorMessage": "$context.integrationErrorMessage"'
+              - '"responseLatency": "$context.responseLatency"'
+              - '"responseLength": "$context.responseLength"'
+              - '"status": "$context.status"'
+              - '"userAgent": "$context.identity.userAgent"'
+              - '}'
+      CorsConfiguration:
+        AllowCredentials: True
+        AllowHeaders:
+          - "Authorization"
+          - "*"
+        AllowMethods:
+          - "*"
+        AllowOrigins:
+          - "http://localhost:3000"
+        ExposeHeaders:
+          - "Date"
+          - "x-api-id"
+        MaxAge: 600
+      Tags:
+        Environment: !Ref Environment
+
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Sub "http-api/${Environment}/access-logs"
+      RetentionInDays: 7
+
+Outputs:
+  HttpApi:
+    Description: "API Gateway Resource"
+    Value: !Ref HttpApi
+    Export:
+      Name: !Sub "${AWS::StackName}-HttpApi"
+  HttpApiAccessLogGroup:
+    Description: HttpApi Access Log Group ARN
+    Value: !GetAtt AccessLogs.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-AccessLogs-Arn"
+  HttpApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+    Export:
+      Name: !Sub "${AWS::StackName}-HttpApi-Url"
+
