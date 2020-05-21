@@ -20,8 +20,7 @@ Resources:
         Format:
           !Join 
             - ','
-            - - '{'
-              - '"requestId": "$context.requestId"'
+            - - '{"requestId": "$context.requestId"'
               - '"ip": "$context.identity.sourceIp"'
               - '"routeKey": "$context.routeKey"'
               - '"protocol": "$context.protocol"'
@@ -34,8 +33,7 @@ Resources:
               - '"responseLatency": "$context.responseLatency"'
               - '"responseLength": "$context.responseLength"'
               - '"status": "$context.status"'
-              - '"userAgent": "$context.identity.userAgent"'
-              - '}'
+              - '"userAgent": "$context.identity.userAgent"}'
       CorsConfiguration:
         AllowCredentials: True
         AllowHeaders:
